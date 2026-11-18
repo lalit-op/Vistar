@@ -1,7 +1,7 @@
 {
   "name": "vistar",
   "appName": "Vistar",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Vistar TV web app module for Samsung Tizen through TizenBrew",
   "packageType": "app",
   "appPath": "app/index.html",
@@ -21,5 +21,8 @@
     "MediaStop",
     "MediaFastForward",
     "MediaRewind"
-  ]
+  ],
+  "scripts": {
+    "test": "node scripts/smoke-test.mjs"
+  }
 }
