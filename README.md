@@ -1,37 +1,45 @@
-# Vistar
+# Vistar for Samsung TV (TizenBrew)
 
-Vistar is a TV-first streaming interface packaged as a **TizenBrew app module** for compatible Samsung Smart TVs.
+An independently implemented Samsung-TV web app module inspired by the feature set described in the Android TV Vistaar project. It is not an Android APK port and does not reuse that project's source code.
 
-## Current prototype features
+## TizenBrew module
 
-- Remote-control navigation and visible focus states
-- M3U playlist loading from a user-supplied URL
-- Channel groups/categories, search, favourites and recently played
-- HTML5 video playback with clear playback error messages
-- Local settings saved in browser storage
-- Optional public India playlist shortcut
+- Package type: `app`
+- Entry point: `app/index.html`
+- Module identifier (after publishing this repository): `lalit-op/Vistar`
 
-## Install through TizenBrew
+In TizenBrew, add the repository identifier shown above using the catalogue's GitHub module option. If the catalogue requires a version/tag, use a published release tag rather than assuming `main` is cached immediately.
 
-1. Publish this repository on GitHub.
-2. In TizenBrew, add the module using the repository identifier:
-   `lalit-op/Vistar`
-3. Launch **Vistar** from TizenBrew.
+## Implemented in this build
 
-TizenBrew app modules are hosted web pages. This project therefore uses standard web APIs and does **not** assume that Samsung's native `tizen` or `webapis` objects are available inside the module.
+- TV-oriented dark interface and remote-friendly buttons
+- Home, Live TV, Free TV, HD, Guide, Favourites and Recently watched views
+- Load an HTTP(S) M3U/M3U8 URL or import a local M3U file
+- India free playlist shortcut (iptv-org community playlist)
+- Channel category filtering and text search
+- Favourites and recently watched channels in local storage
+- HTML5 video playback with Fit / Zoom / Stretch, channel up/down and player overlay
+- Optional XMLTV guide parsing, matched by playlist `tvg-id`
+- Basic input validation and playback/network error messages
 
-## Configure a playlist
+## Important limitations
 
-Open **Settings** and paste an M3U/M3U8 playlist URL that you are authorized to access. The built-in India playlist shortcut points to the community-maintained iptv-org India playlist:
+- **Not yet tested on a physical Samsung TV.** Browser, firmware, remote key mapping, supported codecs and playback behaviour vary by model. TizenBrew module pages run as web pages; do not assume Samsung native `tizen` or `webapis` APIs are available inside this module.
+- HLS, MPEG-TS, DASH, codecs, cross-origin requests (CORS), cookies and stream provider restrictions depend on the TV browser and source server. A playlist loading successfully does not guarantee its streams will play.
+- HD classification is a best-effort name/URL heuristic, not a verified resolution measurement.
+- XMLTV guide entries require matching `tvg-id` values. Timezone and programme presentation are basic.
+- This build does **not** implement Jio OTP login, Jio account entitlement checks, private provider APIs, Widevine/DRM playback, session-cookie replay, or subscription channel resolution. Those require official/authorised integration documentation and a compatible playback path. Do not enter Jio credentials or OTPs into this app.
+- The public India playlist is community-maintained; channels may be offline or change without notice.
 
-`https://iptv-org.github.io/iptv/countries/in.m3u`
+## Run and verify
 
-Playlist hosts must allow browser CORS requests for remote loading to work. Some streams may not play because of codec, DRM, CORS, network, or TV browser limitations. This app does not bypass subscriptions, DRM, or provider access controls.
+1. Publish the repository on GitHub.
+2. In TizenBrew, use the GitHub module install flow with `lalit-op/Vistar`.
+3. Open Vistar and test with a playlist you are authorised to use.
+4. Test navigation, playback and Back behaviour on the target TV.
 
-## Important compatibility note
+This repository has only received static/code-level checks in the development environment. A successful installation and playback test on the Samsung T5500 is still required before claiming device compatibility.
 
-This is an initial TizenBrew web-module build, not a native Samsung TV application. HTML5 video support varies by TV model, firmware, stream format, and codec. It must be tested on the target Samsung T5500 TV before claiming device-level compatibility.
+## Original project reference
 
-## Project status
-
-Prototype foundation: manifest and TV interface. Jio account login, subscription entitlement filtering, provider-specific stream resolution, DRM playback, and a real EPG feed are not implemented in this Tizen build. Those require authorized provider integration and valid service/API access.
+The Android TV Vistaar README describes its own Android-specific implementation and features. This repository is a clean web implementation of selected user-facing concepts. The original repository currently states that no reuse licence has been chosen; therefore its source code is not copied here.
