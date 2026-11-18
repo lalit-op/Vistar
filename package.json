@@ -1,7 +1,7 @@
 {
   "name": "vistar",
   "appName": "Vistar",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Vistar TV web app module for Samsung Tizen through TizenBrew",
   "packageType": "app",
   "appPath": "app/index.html",
@@ -11,9 +11,7 @@
     "ArrowLeft",
     "ArrowRight",
     "Enter",
-    "Return",
     "Escape",
-    "Back",
     "BrowserBack",
     "MediaPlayPause",
     "MediaPlay",
