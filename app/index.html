@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080b13">
+<title>Vistar</title>
+<style>
+:root{color-scheme:dark;--bg:#080b13;--panel:#111827;--panel2:#182235;--line:#26344b;--text:#f4f7fb;--muted:#9aa9bd;--accent:#55c7ef;--accent2:#8878ff;--danger:#ff7373}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+button,input{font:inherit}button{color:inherit;border:1px solid var(--line);background:#172235;border-radius:9px;padding:12px 16px;cursor:pointer}
+button:focus,input:focus,.focusable:focus{outline:3px solid var(--accent);outline-offset:2px}
+#app{height:100%;display:grid;grid-template-rows:74px 1fr 38px;background:radial-gradient(ellipse at 78% 0%,#182a48 0,transparent 40%),var(--bg)}
+header{display:flex;align-items:center;gap:28px;padding:0 38px;border-bottom:1px solid #ffffff12}
+.logo{font-size:28px;font-weight:800;letter-spacing:1px;background:linear-gradient(100deg,var(--accent),var(--accent2));color:transparent;background-clip:text}
+nav{display:flex;gap:8px}nav button{background:transparent;border-color:transparent;color:var(--muted);padding:10px 14px}nav button.active{color:white;background:#ffffff12;border-color:#ffffff18}
+#status{margin-left:auto;color:var(--muted);font-size:13px}
+main{min-height:0;display:grid;grid-template-columns:260px 1fr;gap:22px;padding:24px 34px}
+aside{background:#0e1624cc;border:1px solid var(--line);border-radius:15px;padding:18px;min-height:0;overflow:auto}
+.side-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1.4px;margin:4px 0 12px}
+.side-btn{width:100%;text-align:left;margin:3px 0;background:transparent;border-color:transparent;color:#c5d0df}
+.side-btn.active{background:#1b2c43;border-color:#2c4867;color:white}
+.content{min-width:0;min-height:0;display:flex;flex-direction:column;gap:16px}
+.topline{display:flex;align-items:center;gap:14px}.topline h1{font-size:25px;margin:0}.topline p{margin:4px 0 0;color:var(--muted);font-size:13px}
+#search{margin-left:auto;width:270px;max-width:35%;background:#101a2a;border:1px solid var(--line);border-radius:9px;padding:12px;color:white}
+#message{min-height:20px;color:var(--muted);font-size:13px}
+#channels{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:12px;overflow:auto;padding:3px 4px 20px;align-content:start}
+.channel{min-height:116px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(145deg,#18263a,#101827);border:1px solid var(--line);padding:15px}
+.channel .name{font-size:16px;font-weight:700;line-height:1.25}.channel .meta{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.channel .tag{color:var(--accent);font-size:10px;text-transform:uppercase;letter-spacing:1px}
+footer{display:flex;align-items:center;padding:0 34px;color:#7e8ca0;font-size:12px;border-top:1px solid #ffffff10}
+#player{position:fixed;inset:0;background:#000;z-index:5;display:none;align-items:center;justify-content:center;flex-direction:column}
+#video{width:100%;height:100%;object-fit:contain;background:#000}
+#playerbar{position:absolute;left:0;right:0;bottom:0;padding:22px 34px;background:linear-gradient(transparent,#000d);display:flex;align-items:center;gap:14px}
+#playingTitle{font-size:18px;font-weight:700;margin-right:auto}
+#settings{position:fixed;inset:0;background:#000a;z-index:8;display:none;align-items:center;justify-content:center;padding:20px}
+.dialog{width:min(680px,95vw);background:#111b2b;border:1px solid #34445e;border-radius:16px;padding:24px;box-shadow:0 20px 80px #0009}
+.dialog h2{margin:0 0 8px}.dialog p{color:var(--muted);line-height:1.5}
+.dialog label{display:block;margin:16px 0 7px;color:#c5d0df;font-size:13px}
+.dialog input{width:100%;padding:13px;border:1px solid var(--line);border-radius:8px;background:#080f1b;color:white}
+.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}.primary{background:linear-gradient(100deg,#167ca7,#6556c7);border:0}
+.empty{grid-column:1/-1;padding:40px;color:var(--muted);text-align:center;border:1px dashed var(--line);border-radius:12px}
+@media(max-width:850px){main{grid-template-columns:190px 1fr;padding:16px}header{padding:0 18px}nav{gap:0}nav button{padding:8px}#search{width:180px}}
+</style>
+</head>
+<body>
+<div id="app">
+<header><div class="logo">VISTAR</div><nav id="tabs"><button class="active" data-view="home">Home</button><button data-view="live">Live TV</button><button data-view="favourites">Favourites</button><button data-view="recent">Recent</button></nav><div id="status">Ready</div></header>
+<main>
+<aside><div class="side-title">Browse</div><button class="side-btn active" data-group="All">All channels</button><button class="side-btn" data-group="News">News</button><button class="side-btn" data-group="Entertainment">Entertainment</button><button class="side-btn" data-group="Sports">Sports</button><button class="side-btn" data-group="Movies">Movies</button><button class="side-btn" data-group="Kids">Kids</button><div class="side-title" style="margin-top:24px">Library</div><button class="side-btn" id="openSettings">Settings</button></aside>
+<section class="content"><div class="topline"><div><h1 id="heading">Welcome to Vistar</h1><p id="subheading">Your TV, your channels.</p></div><input id="search" type="search" placeholder="Search channels..." aria-label="Search channels"></div><div id="message">Add a playlist in Settings to load your channels.</div><div id="channels"><div class="empty">No channels loaded yet.<br>Open Settings and add your M3U playlist URL.</div></div></section>
+</main><footer>VISTAR · Use your TV remote · Enter to open · Back to close player</footer>
+</div>
+<div id="player"><video id="video" controls autoplay></video><div id="playerbar"><div id="playingTitle">Playing</div><button id="favCurrent">☆ Favourite</button><button id="closePlayer">Close</button></div></div>
+<div id="settings"><div class="dialog"><h2>Vistar settings</h2><p>Use an M3U/M3U8 playlist URL you are authorized to access. The playlist host must permit browser CORS requests.</p><label for="playlistUrl">Playlist URL</label><input id="playlistUrl" type="url" placeholder="https://example.com/playlist.m3u"><div class="actions"><button id="indiaPlaylist">Use India playlist</button><button id="cancelSettings">Cancel</button><button class="primary" id="saveSettings">Save &amp; load</button></div><p id="settingsMessage"></p></div></div>
+<script>
+(function(){
+'use strict';
+const INDIA_PLAYLIST='https://iptv-org.github.io/iptv/countries/in.m3u';
+const $=id=>document.getElementById(id);
+const state={channels:[],view:'home',group:'All',query:'',favourites:loadSet('vistar-favourites'),recent:loadArray('vistar-recent'),current:null};
+function loadSet(k){try{return new Set(JSON.parse(localStorage.getItem(k)||'[]'))}catch(_){return new Set()}}
+function loadArray(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(_){return []}}
+function save(){try{localStorage.setItem('vistar-favourites',JSON.stringify([...state.favourites]));localStorage.setItem('vistar-recent',JSON.stringify(state.recent.slice(0,30)))}catch(_){}}
+function safeText(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function parseM3U(src){
+ const lines=src.replace(/^\uFEFF/,'').split(/\r?\n/);const out=[];let meta=null;
+ for(const raw of lines){const line=raw.trim();if(!line)continue;
+  if(line.startsWith('#EXTINF:')){const comma=line.indexOf(',');const attrs=comma>=0?line.slice(0,comma):line;const name=comma>=0?line.slice(comma+1).trim():'Unknown channel';const get=(key)=>{const m=attrs.match(new RegExp(key+'="([^"]*)"','i'));return m?m[1]:''};meta={name:name||'Unknown channel',group:get('group-title')||'Other',logo:get('tvg-logo'),id:get('tvg-id')};}
+  else if(!line.startsWith('#')&&/^https?:\/\//i.test(line)){out.push({id:meta&&meta.id?meta.id+'|'+line:line,name:meta?meta.name:'Channel '+(out.length+1),group:meta?meta.group:'Other',logo:meta?meta.logo:'',url:line});meta=null;}
+ }
+ return out;
+}
+function groupFor(ch){const g=(ch.group||'').toLowerCase();if(/news/.test(g))return'News';if(/sport/.test(g))return'Sports';if(/movie|cinema|film/.test(g))return'Movies';if(/kid|child/.test(g))return'Kids';if(/entertain|music|general|series/.test(g))return'Entertainment';return'Other'}
+function visible(){
+ let list=state.channels;
+ if(state.view==='favourites')list=list.filter(c=>state.favourites.has(c.id));
+ if(state.view==='recent')list=list.filter(c=>state.recent.includes(c.id)).sort((a,b)=>state.recent.indexOf(a.id)-state.recent.indexOf(b.id));
+ if(state.view==='home'||state.view==='live'){}
+ if(state.group!=='All')list=list.filter(c=>groupFor(c)===state.group);
+ if(state.query)list=list.filter(c=>(c.name+' '+c.group).toLowerCase().includes(state.query));
+ return list;
+}
+function render(){
+ const list=visible();$('channels').innerHTML='';
+ $('heading').textContent=({home:'Welcome to Vistar',live:'Live TV',favourites:'Favourites',recent:'Recently watched'})[state.view]||'Vistar';
+ $('subheading').textContent=state.channels.length?state.channels.length+' channels loaded':'Your TV, your channels.';
+ $('message').textContent=state.channels.length?(list.length+' channels shown'):'Add a playlist in Settings to load your channels.';
+ document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));
+ document.querySelectorAll('[data-group]').forEach(b=>b.classList.toggle('active',b.dataset.group===state.group));
+ if(!list.length){$('channels').innerHTML='<div class="empty">'+(state.channels.length?'No channels match this view.':'No channels loaded yet.<br>Open Settings and add your M3U playlist URL.')+'</div>';return}
+ const frag=document.createDocumentFragment();
+ list.forEach(ch=>{const b=document.createElement('button');b.className='channel focusable';b.dataset.id=ch.id;
+ const n=document.createElement('div');n.className='name';n.textContent=ch.name;
+ const t=document.createElement('div');t.className='tag';t.textContent=ch.group||'Channel';
+ const m=document.createElement('div');m.className='meta';const g=document.createElement('span');g.textContent=ch.group||'Other';const f=document.createElement('span');f.textContent=state.favourites.has(ch.id)?'★':'☆';m.append(g,f);b.append(n,t,m);b.addEventListener('click',()=>play(ch));frag.append(b)});
+ $('channels').append(frag);
+}
+async function loadPlaylist(url){
+ $('settingsMessage').textContent='Loading playlist…';
+ try{const res=await fetch(url,{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);const body=await res.text();const channels=parseM3U(body);if(!channels.length)throw new Error('No valid HTTP stream entries found in this M3U playlist.');state.channels=channels;localStorage.setItem('vistar-playlist-url',url);$('settings').style.display='none';$('status').textContent=channels.length+' channels';state.view='live';state.group='All';render();}catch(e){$('settingsMessage').textContent='Could not load playlist: '+e.message+'. Check the URL, internet connection and playlist CORS permissions.';}
+}
+function play(ch){
+ state.current=ch;state.recent=[ch.id,...state.recent.filter(x=>x!==ch.id)].slice(0,30);save();
+ $('playingTitle').textContent=ch.name;$('favCurrent').textContent=state.favourites.has(ch.id)?'★ Favourited':'☆ Favourite';
+ $('player').style.display='flex';const v=$('video');v.src=ch.url;v.load();const p=v.play();if(p&&p.catch)p.catch(()=>{$('status').textContent='Press Play to start stream';});
+}
+function closePlayer(){const v=$('video');v.pause();v.removeAttribute('src');v.load();$('player').style.display='none';state.current=null}
+function openSettings(){$('playlistUrl').value=localStorage.getItem('vistar-playlist-url')||'';$('settingsMessage').textContent='';$('settings').style.display='flex';$('saveSettings').focus()}
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(!b)return;state.view=b.dataset.view;state.group='All';render()});
+document.querySelector('aside').addEventListener('click',e=>{const b=e.target.closest('[data-group]');if(b){state.group=b.dataset.group;render()}});
+$('search').addEventListener('input',e=>{state.query=e.target.value.trim().toLowerCase();render()});
+$('openSettings').addEventListener('click',openSettings);
+$('cancelSettings').addEventListener('click',()=>$('settings').style.display='none');
+$('indiaPlaylist').addEventListener('click',()=>$('playlistUrl').value=INDIA_PLAYLIST);
+$('saveSettings').addEventListener('click',()=>{const url=$('playlistUrl').value.trim();if(!/^https?:\/\//i.test(url)){$('settingsMessage').textContent='Enter a valid http or https playlist URL.';return}loadPlaylist(url)});
+$('closePlayer').addEventListener('click',closePlayer);
+$('favCurrent').addEventListener('click',()=>{if(!state.current)return;const id=state.current.id;if(state.favourites.has(id))state.favourites.delete(id);else state.favourites.add(id);save();$('favCurrent').textContent=state.favourites.has(id)?'★ Favourited':'☆ Favourite';render()});
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'||e.key==='Back'){if($('settings').style.display==='flex')$('settings').style.display='none';else if($('player').style.display==='flex')closePlayer();return}
+ if(e.key==='Enter'&&document.activeElement&&document.activeElement.classList.contains('channel'))document.activeElement.click();
+ if(e.key==='MediaPlayPause'){const v=$('video');if(v.paused)v.play();else v.pause()}
+});
+window.addEventListener('error',e=>{$('status').textContent='Interface error';});
+const saved=localStorage.getItem('vistar-playlist-url');
+if(saved){$('playlistUrl').value=saved;loadPlaylist(saved)}
+render();
+})();
+</script>
+</body>
+</html>
