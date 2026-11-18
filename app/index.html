@@ -72,19 +72,21 @@ document.querySelectorAll('button[data-view]').forEach(b=>b.addEventListener('cl
 $('search').addEventListener('input',e=>{S.query=e.target.value.trim().toLowerCase();render()});
 $('settingsOpen').onclick=settingsOpen;$('cancelSettings').onclick=()=>$('settings').style.display='none';
 $('saveSettings').onclick=async()=>{const u=$('playlistUrl').value.trim(),g=$('epgUrl').value.trim();if(!validUrl(u)){$('settingsMessage').textContent='Enter a valid playlist URL.';return}write('vistar:epg',g);await loadPlaylist(u,false);if(g)await loadEpg(g)};
-$('loadIndia').onclick=()=>$('playlistUrl').value=INDIA;$('importFile').onclick=()=>$('fileInput').click();
+$('loadIndia').onclick=()=>{ $('playlistUrl').value=INDIA; loadPlaylist(INDIA,true); };$('importFile').onclick=()=>$('fileInput').click();
 $('fileInput').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const parsed=parseM3U(await f.text());if(!parsed.length)throw Error('No valid stream URLs');S.channels=parsed.map(c=>({...c,free:false}));S.view='live';$('settings').style.display='none';render();toast('Imported '+parsed.length+' channels')}catch(err){$('settingsMessage').textContent=err.message}};
 $('clearData').onclick=()=>{S.favs.clear();S.recent=[];saveState();render();toast('Favourites and history cleared')};
 $('closePlayer').onclick=closePlayer;$('favCurrent').onclick=toggleFav;$('prevChannel').onclick=()=>changeChannel(-1);$('nextChannel').onclick=()=>changeChannel(1);$('guideCurrent').onclick=()=>openGuide(S.current);
 $('aspect').onclick=()=>{S.aspect=(S.aspect+1)%3;const modes=['contain','cover','fill'],labels=['Fit','Zoom','Stretch'];$('video').style.objectFit=modes[S.aspect];$('aspect').textContent=labels[S.aspect]};
 $('closeGuide').onclick=()=>$('guide').style.display='none';
+function moveFocus(direction){const nodes=[...document.querySelectorAll('button:not(:disabled),input:not(:disabled),[tabindex="0"]')].filter(el=>el.getClientRects().length&&el.offsetParent!==null);const current=document.activeElement;if(!nodes.includes(current)){focusFirst();return}const a=current.getBoundingClientRect(),ax=a.left+a.width/2,ay=a.top+a.height/2;let best=null,bestScore=Infinity;for(const el of nodes){if(el===current)continue;const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,dx=x-ax,dy=y-ay;const primary=direction==='left'?-dx:direction==='right'?dx:direction==='up'?-dy:dy;if(primary<=2)continue;const cross=direction==='left'||direction==='right'?Math.abs(dy):Math.abs(dx);const score=primary+cross*2.2;if(score<bestScore){bestScore=score;best=el}}if(best)best.focus()}
 document.addEventListener('keydown',e=>{const k=e.key;if($('player').style.display==='flex'){if(k==='Escape'||k==='Backspace'||k==='BrowserBack'){e.preventDefault();closePlayer()}else if(k==='ArrowUp'){e.preventDefault();showPlayerBar()}else if(k==='ArrowRight'&&e.altKey){e.preventDefault();changeChannel(1)}else if(k==='ArrowLeft'&&e.altKey){e.preventDefault();changeChannel(-1)}else showPlayerBar();return}
  if(k==='Escape'||k==='Backspace'||k==='BrowserBack'){if($('settings').style.display==='flex')$('settings').style.display='none';else if($('guide').style.display==='flex')$('guide').style.display='none';else if(document.activeElement===$('search'))$('search').blur();return}
+ if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(k)&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){e.preventDefault();moveFocus(k.replace('Arrow','').toLowerCase());return}
  if(k==='Enter'&&document.activeElement===document.body){focusFirst()}
 });
 $('video').addEventListener('error',()=>playerError('This stream format or codec may not be supported by the TV browser, or the stream may be unavailable.'));
 $('video').addEventListener('playing',()=>$('playerError').style.display='none');
-const saved=read('vistar:playlist','');if(saved){$('status').textContent='Playlist saved · reload in Settings';$('message').textContent='Your playlist URL is saved. Open Settings and press Save & load to refresh channels.'}
+const saved=read('vistar:playlist','');const savedEpg=read('vistar:epg','');if(saved){$('status').textContent='Restoring saved playlist…';loadPlaylist(saved,saved===INDIA).then(()=>{if(savedEpg)loadEpg(savedEpg)});}else{$('status').textContent='Ready'}
 if(!('fetch'in window))toast('This TV browser may be too old for playlist loading');
 })();
 </script>
