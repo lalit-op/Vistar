@@ -21,6 +21,8 @@ In TizenBrew, add the repository identifier shown above using the catalogue's Gi
 - HTML5 video playback with Fit / Zoom / Stretch, channel up/down and player overlay
 - Optional XMLTV guide parsing, matched by playlist `tvg-id`
 - Basic input validation and playback/network error messages
+- Saved playlist restoration on startup and directional remote-control focus navigation
+- Node.js smoke tests for manifest, inline JavaScript syntax and M3U parsing (`npm test`)
 
 ## Important limitations
 
@@ -38,7 +40,7 @@ In TizenBrew, add the repository identifier shown above using the catalogue's Gi
 3. Open Vistar and test with a playlist you are authorised to use.
 4. Test navigation, playback and Back behaviour on the target TV.
 
-This repository has only received static/code-level checks in the development environment. A successful installation and playback test on the Samsung T5500 is still required before claiming device compatibility.
+Run `npm test` in the repository to execute the automated smoke checks. These validate code structure and M3U parsing, not TV playback. A successful installation and playback test on the Samsung T5500 is still required before claiming device compatibility.
 
 ## Original project reference
 
