@@ -1,0 +1,31 @@
+import { readFileSync } from 'node:fs';
+import { Script, runInNewContext } from 'node:vm';
+import assert from 'node:assert/strict';
+
+const html = readFileSync(new URL('../app/index.html', import.meta.url), 'utf8');
+const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+const scripts = [...html.matchAll(/<script>([\\s\\S]*?)<\\/script>/gi)];
+assert.equal(scripts.length, 1, 'Expected one inline application script');
+new Script(scripts[0][1], { filename: 'app/index.html:inline-script' });
+assert.equal(manifest.packageType, 'app');
+assert.equal(manifest.appPath, 'app/index.html');
+assert.ok(manifest.keys.includes('ArrowUp') && manifest.keys.includes('ArrowDown'));
+
+const start = scripts[0][1].indexOf('function parseM3U(src){');
+const end = scripts[0][1].indexOf('\nfunction classify(', start);
+assert.ok(start >= 0 && end > start, 'M3U parser function must exist');
+const parserSource = scripts[0][1].slice(start, end);
+const validUrl = value => { try { const u = new URL(value); return u.protocol === 'https:' || u.protocol === 'http:'; } catch { return false; } };
+const parseM3U = runInNewContext('(' + parserSource + ')', { URL, validUrl });
+const channels = parseM3U('#EXTM3U\n#EXTINF:-1 tvg-id="news.one" group-title="News",Example News HD\nhttps://stream.example/live.m3u8\n# comment\nnot-a-url\n#EXTINF:-1,Second\nhttp://example.org/tv');
+assert.equal(channels.length, 2, 'Only valid HTTP(S) stream entries should be parsed');
+assert.equal(channels[0].name, 'Example News HD');
+assert.equal(channels[0].tvgId, 'news.one');
+assert.equal(channels[0].group, 'News');
+assert.equal(channels[0].hd, true);
+assert.equal(channels[1].name, 'Second');
+assert.equal(parseM3U('#EXTM3U\n#EXTINF:-1,Invalid\nfile:///etc/passwd').length, 0);
+assert.ok(html.includes('function moveFocus(direction)'), 'TV remote directional focus handler must exist');
+assert.ok(html.includes("loadPlaylist(saved,saved===INDIA)"), 'Saved playlist restoration must exist');
+assert.ok(html.includes("loadPlaylist(INDIA,true)"), 'India playlist shortcut must load directly');
+console.log('Vistar smoke tests passed: manifest, JavaScript syntax, M3U parsing, remote focus and playlist restore.');
